@@ -5,10 +5,16 @@
 # Use a fire tv remote in combination with gphoto
 # to capture images and print them.
 #
+# Intructions to connect a fire tv remote see:
+# http://lipflip.org/node/2106
+#
+#
 # Make sure you have a running gphoto2 installation.
-# 
+# e.g. install it with: sudo port install gphoto2
 # To prevent Mac OS X from claiming PTP cameras see:
 # https://github.com/mejedi/mac-gphoto-enabler.git
+#
+# 2015-07-19 Christoph G. Keller <christoph.keller@gmx.net>
 
 if [ `uname` != "Darwin" ];
 then
@@ -38,7 +44,8 @@ function mydisplay {
 }
 
 # check some system settings
-type gphoto2 > /dev/null || echo "Please install gphoto2. sudo port install gphoto2"
+type gphoto2 > /dev/null || \
+    echo "Please install gphoto2. sudo port install gphoto2"
 
 while true
 do
@@ -66,7 +73,7 @@ do
 	sleep 1
 	mydisplay $FERROR
 	echo "Waiting..."
-	sleep 1
+	sleep 2
 	FILENAME=""
     else
 	FILENAME=`echo $FILENAME | grep "Saving file as" | awk '{print $4}'`
@@ -74,10 +81,10 @@ do
 	if [ ! -z "$PRINTERNAME" ]; then
 	    lp -o fit-to-page -d "$PRINTERNAME" $FILENAME
 	fi
+	sleep 5
     fi
 
-
-   sleep 2
 done
 
 
+exit 0
