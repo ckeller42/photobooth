@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 #
 # photobooth.sh
 #  
@@ -7,45 +7,49 @@
 #
 
 
-FPRESS="warte.png"
-FLOAD="lade.png"
-WAITTIME="2s"
+FPRESS="pressbutton.jpg"
+FLOAD="loading.jpg"
 
-
+function mydisplay {
+    IMGNAME=$1
+    open -a Xee $IMGNAME -g
+    # make sure theat the terminal is on top
+    osascript -e 'tell application "iTerm" to activate'
+}
 
 while true
 do
     # display a "wait image"
-    open -a Xee $FPRESS -g
+    mydisplay $FPRESS
 
     # The fire tv remote send arrow keys and return.
     # We do want to trigger a command on any of those keys
+    echo "Waiting for keypress"
     read -n3
 
     # tell the user what is happening
-    ( sleep 2s;open -a Xee $FLOAD -g ) &
+    ( sleep 1; mydisplay $FLOAD) &
 
+    echo "Got key event"
     # run gphoto to capture and download the image
-    FILENAME=`gphoto2 --capture-image-and-download --filename %Y%m%d%H%M%S.jpg | grep "Saving file as" `
-    FILENAME=`echo $FILENAME | awk '{print $4}'`
+    FILENAME=`gphoto2 --capture-image-and-download --filename %Y%m%d%H%M%S.jpg`
     
-    
-    #
-    # I really would have loved to use a X11 image viewer
-    # but osx is to stupid to work with wmctrl or have a "keep window focus"
-    # function....
-    # So we use open with -g
-    #
-    #screen_size=`xdpyinfo | sed '/dimensions:/!d;s/^[^0-9]*//;s/ pixels.*//'`
-    #(display  -size $screen_size  $FILENAME) &
-    #(feh --auto-zoom --geometry  $screen_size) &
-    #mypid=$!
-    #sleep 5s
-    #kill -9 $mypid
+    if [ $? -ne 0 ]; then
+	echo "Error running gphoto"
+	echo $FILENAME
+	sleep 1
+	mydisplay "error.jpg"
+	echo "Waiting..."
+	sleep 1
+	FILENAME=""
+    else
+	FILENAME=`echo $FILENAME | grep "Saving file as" | awk '{print $4}'`
+    	mydisplay $FILENAME
+	#lp -o fit-to-page -d "" $FILENAME
+    fi
 
 
-    open -a Xee $FILENAME -g
-    sleep $WAITTIME
+   sleep 2
 done
 
 
