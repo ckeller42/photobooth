@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash  
 #
 # photobooth.sh
 #  
@@ -30,7 +30,7 @@ FERROR="error.jpg"
 # which printer to use
 # you can get  list of names using: lpstat -p
 # if not set, printing is disabled
-PRINTERNAME="" 
+PRINTERNAME="Canon_CP910" 
 
 
 # name of the terminal application
@@ -76,10 +76,10 @@ do
 	sleep 2
 	FILENAME=""
     else
-	FILENAME=`echo $FILENAME | grep "Saving file as" | awk '{print $4}'`
+	FILENAME=`echo $FILENAME | grep "Saving file as" | grep -o -E "[0-9]{14}.jpg"`
     	mydisplay $FILENAME
 	if [ ! -z "$PRINTERNAME" ]; then
-	    lp -o fit-to-page -d "$PRINTERNAME" $FILENAME
+	    lp -o media=a6 -o fit-to-page -d "$PRINTERNAME" $FILENAME
 	fi
 	sleep 5
     fi
